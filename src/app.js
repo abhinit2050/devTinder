@@ -1,33 +1,13 @@
 const express = require("express");
-
+const connectDB = require('./config/database.js');
 const app = express();
 
-const {authAdmin, authUser} = require("./middlewares/auth.js");
+connectDB().then(()=>{
+    console.log("Database connection established successfully");
+    app.listen(7777,()=>{
+        console.log("Listening on port 7777");
+        
+    })
 
-app.use("/admin",authAdmin);
+}).catch(err=>console.log("Error connecting Database! "+err))
 
-
-app.get("/admin/getAllData",(req,res)=>{
-    res.send("All Admin data fetched");
-})
-
-app.get("/user/getAllData",authUser,(req, res)=>{
-    res.send("All User Data fetched");
-});
-
-app.post("/user/login",(req,res)=>{
-    
-    res.status(200).send("User logged in successfully");
-});
-
-app.use("/",(err,req,res,next)=>{
-    
-    if(err){
-        res.status(500).send("something went wrong");
-    }
-})
-
-app.listen(7777,()=>{
-    console.log("Listening on port 7777");
-    
-})
