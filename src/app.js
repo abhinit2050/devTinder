@@ -2,25 +2,22 @@ const express = require("express");
 
 const app = express();
 
-app.get("/user",(req, res)=>{
-    res.send({firstName:"Abhinit", lastName:"Rai"})
+const {authAdmin, authUser} = require("./middlewares/auth.js");
+
+app.use("/admin",authAdmin);
+
+
+app.get("/admin/getAllData",(req,res)=>{
+    res.send("All Admin data fetched");
 })
 
-app.post("/user",(req, res)=>{
-    res.send("Data successfully saved to database")
-})
+app.get("/user/getAllData",authUser,(req, res)=>{
+    res.send("All User Data fetched");
+});
 
-app.patch("/user",(req, res)=>{
-    res.send("Data patched successfully and modified in database")
-})
-
-
-app.delete("/user",(req, res)=>{
-    res.send("Deleted successfully!")
-})
-
-app.use("/test",(req,res)=>{
-    res.send("Hello from server test");
+app.post("/user/login",(req,res)=>{
+    
+    res.status(200).send("User logged in successfully");
 })
 
 app.listen(7777,()=>{
