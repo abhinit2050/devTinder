@@ -18,6 +18,13 @@ app.get("/user/getAllData",authUser,(req, res)=>{
 app.post("/user/login",(req,res)=>{
     
     res.status(200).send("User logged in successfully");
+});
+
+app.use("/",(err,req,res,next)=>{
+    
+    if(err){
+        res.status(500).send("something went wrong");
+    }
 })
 
 app.listen(7777,()=>{
