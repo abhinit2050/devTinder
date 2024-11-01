@@ -2,14 +2,21 @@ const express = require("express");
 
 const app = express();
 
-app.use("/", (req, res, next) => {
-    console.log("Common logic for all routes");
-    next(); // Pass control to the next matching route
-});
+app.get("/user",(req, res)=>{
+    res.send({firstName:"Abhinit", lastName:"Rai"})
+})
+
+app.post("/user",(req, res)=>{
+    res.send("Data successfully saved to database")
+})
+
+app.patch("/user",(req, res)=>{
+    res.send("Data patched successfully and modified in database")
+})
 
 
-app.use("/home",(req,res)=>{
-    res.send("Hello from server home!");
+app.delete("/user",(req, res)=>{
+    res.send("Deleted successfully!")
 })
 
 app.use("/test",(req,res)=>{
