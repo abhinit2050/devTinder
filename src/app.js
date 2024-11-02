@@ -12,16 +12,15 @@ connectDB().then(()=>{
 
 }).catch(err=>console.log("Error connecting Database! "+err))
 
+//middleware to parse JSON and convert it to JS Object form
+app.use(express.json());
+
 app.post("/signup",async (req,res)=>{
 
-    const newUser = new User({
-        firstName:"Jaspreet",
-        lastName:"Bumrah",
-        emailId:"jassy@gmail.com",
-        password:"bumrah123"
-    })
+    const newUser = new User(req.body)
 
     try{
+
         await newUser.save();
         res.send("New User added successfully");
     }
