@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const User = require('./models/user.js');
 const validateSignupData = require("./utils/validation.js");
+const {authUser} = require("./middlewares/auth.js");
 
 const app = express();
 
@@ -141,8 +142,10 @@ app.post("/login", async (req,res)=>{
             if(!isPasswordValid){
                 throw new Error("Invalid credentials!");
             } else {
-                const token = await jwt.sign({ _id: identifiedUser._id }, 'Dev@Tinder$790');
-                res.cookie("token",token);
+                const token = await jwt.sign({ _id: identifiedUser._id }, 'Dev@Tinder$790', {expiresIn:'180s'});
+                res.cookie("token",token,{
+                    expires:new Date(Date.now()+ 8*3600000) //cookie expires in 8 hours
+                });
                 res.status(202).send("Login Successful!");
             }
         }
@@ -152,14 +155,22 @@ app.post("/login", async (req,res)=>{
     }
 })
 
-app.get("/profile", async(req, res)=>{
+app.get("/profile", authUser, async(req, res)=>{
 
     try{
-            const {token} = req.cookies;
-            let decoded = await jwt.verify(token, 'Dev@Tinder$790');
-            let identifiedProfileUser = await User.findById({_id:decoded._id});
+            let identifiedProfileUser = req.user;
             res.status(202).send(identifiedProfileUser);
 
+    }catch(err){
+        res.status(500).send("Something went wrong! "+err);
+    }
+})
+
+app.post("/sendConnectionRequest",authUser,(req,res)=>{
+
+    try {
+        const identifiedProfileUser = req.user;
+        res.send(identifiedProfileUser.firstName +" has sent a connection request");
     }catch(err){
         res.status(500).send("Something went wrong! "+err);
     }
