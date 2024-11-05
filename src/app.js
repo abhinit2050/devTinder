@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const User = require('./models/user.js');
-const validateSignupData = require("./utils/validation.js");
 const {authUser} = require("./middlewares/auth.js");
 
 const app = express();
@@ -23,31 +22,14 @@ connectDB().then(()=>{
 
 }).catch(err=>console.log("Error connecting Database! "+err))
 
-//sign up API
-app.post("/signup", async (req, res)=>{
-    
-    const {firstName, lastName, email, password} = req.body;
-    try{
 
-        //validate the inout data
-        validateSignupData(req.body);
+const authRouter = require("./routes/authRoutes.js");
+const profileRouter = require("./routes/profileRoutes.js");
+const requestRouter = require("./routes/requestRoutes.js");
 
-        //encrypt the password using bcrypt
-        const hashPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            firstName:firstName,
-            lastName:lastName,
-            email:email,
-            password:hashPassword
-        })
-
-        await newUser.save();
-        res.send("User saved sucessfully");
-    }catch(err){
-        res.status(500).send("Something went wrong! "+err);
-    }
-})
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
 
 
 //find user by email
@@ -125,54 +107,3 @@ app.patch("/user/:userId", async (req, res)=>{
     }
 })
 
-app.post("/login", async (req,res)=>{
-    try{
-        const {email, password} = req.body;
-
-        //check for email
-        const identifiedUser = await User.findOne({email:email});
-
-        if(!identifiedUser){
-            throw new Error("Invalid credentials!");
-        } else {
-            
-            const isPasswordValid = await identifiedUser.validatePassword(password);
-
-          
-            if(!isPasswordValid){
-                throw new Error("Invalid credentials!");
-            } else {
-                const token = await identifiedUser.getJWT();
-
-                res.cookie("token",token,{
-                    expires:new Date(Date.now()+ 8*3600000) //cookie expires in 8 hours
-                });
-                res.status(202).send("Login Successful!");
-            }
-        }
-
-    }catch(err){
-        res.status(500).send("Something went wrong! "+err);
-    }
-})
-
-app.get("/profile", authUser, async(req, res)=>{
-
-    try{
-            let identifiedProfileUser = req.user;
-            res.status(202).send(identifiedProfileUser);
-
-    }catch(err){
-        res.status(500).send("Something went wrong! "+err);
-    }
-})
-
-app.post("/sendConnectionRequest",authUser,(req,res)=>{
-
-    try {
-        const identifiedProfileUser = req.user;
-        res.send(identifiedProfileUser.firstName +" has sent a connection request");
-    }catch(err){
-        res.status(500).send("Something went wrong! "+err);
-    }
-})
