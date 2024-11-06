@@ -8,7 +8,7 @@ const User = require("../models/user");
 //sign up API
 authRouter.post("/signup", async (req, res)=>{
     
-    const {firstName, lastName, email, password} = req.body;
+    const {firstName, lastName, email, password, skills} = req.body;
     try{
 
         //validate the inout data
@@ -21,7 +21,8 @@ authRouter.post("/signup", async (req, res)=>{
             firstName:firstName,
             lastName:lastName,
             email:email,
-            password:hashPassword
+            password:hashPassword,
+            skills: skills
         })
 
         await newUser.save();
@@ -60,9 +61,20 @@ authRouter.post("/login", async (req,res)=>{
         }
 
     }catch(err){
-        res.status(500).send("Something went wrong! "+err);
+        res.status(401).send("Something went wrong! "+err);
     }
 });
+
+
+//logout API
+authRouter.post("/logout", async (req,res)=>{
+
+    res.cookie("token",null,{
+        expires: new Date(Date.now())
+    })
+
+    res.send("User logged out successfully");
+})
 
 
 module.exports = authRouter

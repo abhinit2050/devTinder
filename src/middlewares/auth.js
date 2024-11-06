@@ -37,6 +37,7 @@ const authUser = async (req, res, next) => {
     } else {
         console.log("User Authentication Successful!");
         req.user = identifiedUser;
+       
         next();
     }}catch(err){
         res.status(500).send(""+err);
