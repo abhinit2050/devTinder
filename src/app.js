@@ -32,78 +32,80 @@ app.use("/",profileRouter);
 app.use("/",requestRouter);
 
 
-//find user by email
-app.get("/user", async (req, res)=>{
 
-    const userEmail = req.body.email;
 
-    try{
-        const foundUsers = await User.find({email:userEmail});
+// //find user by email
+// app.get("/user", async (req, res)=>{
 
-        if(foundUsers.length===0){
-            res.status(404).send("No users found");
-        } else {
-            res.send(foundUsers);
-        }
+//     const userEmail = req.body.email;
 
-    } catch(err){
-        res.status(500).send("Something went wrong "+err)
-    }
+//     try{
+//         const foundUsers = await User.find({email:userEmail});
 
-})
+//         if(foundUsers.length===0){
+//             res.status(404).send("No users found");
+//         } else {
+//             res.send(foundUsers);
+//         }
 
-//display all users - feed API
-app.get("/feed", async (req, res)=>{
+//     } catch(err){
+//         res.status(500).send("Something went wrong "+err)
+//     }
 
-    try{
-        const all_Users = await User.find({});
-        res.status(200).send(all_Users);
+// })
 
-    }  catch(err){
-        res.status(500).send("Something went wrong "+err)
-    }
+// //display all users - feed API
+// app.get("/feed", async (req, res)=>{
+
+//     try{
+//         const all_Users = await User.find({});
+//         res.status(200).send(all_Users);
+
+//     }  catch(err){
+//         res.status(500).send("Something went wrong "+err)
+//     }
    
-})
+// })
 
-//delete a user
-app.delete("/user", async (req, res)=>{
-    const userId = req.body.userId;
+// //delete a user
+// app.delete("/user", async (req, res)=>{
+//     const userId = req.body.userId;
 
-    try{
-        await User.findByIdAndDelete(userId);
-        res.send("User deleted successfully");
-    } catch(err){
-        res.status(500).send("Something went wrong "+err)
-    }
+//     try{
+//         await User.findByIdAndDelete(userId);
+//         res.send("User deleted successfully");
+//     } catch(err){
+//         res.status(500).send("Something went wrong "+err)
+//     }
 
-})
+// })
 
-//update data of the user
+// //update data of the user
 
-app.patch("/user/:userId", async (req, res)=>{
+// app.patch("/user/:userId", async (req, res)=>{
 
-    const userId = req.params.userId;
-    const data = req.body;
+//     const userId = req.params.userId;
+//     const data = req.body;
 
     
-    try{
-        const ALLOWED_UPDATES = ["photoUrl", "about", "skills"];
-        const isUpdateAllowed = Object.keys(data).every(k => ALLOWED_UPDATES.includes(k));
+//     try{
+//         const ALLOWED_UPDATES = ["photoUrl", "about", "skills"];
+//         const isUpdateAllowed = Object.keys(data).every(k => ALLOWED_UPDATES.includes(k));
 
-        if(!isUpdateAllowed){
-            throw new Error("Update not allowed");
-        }
+//         if(!isUpdateAllowed){
+//             throw new Error("Update not allowed");
+//         }
 
-        if(data?.length>10){
-            throw new Error("More than 10 skills not allowed!");
-        }
-        await User.findByIdAndUpdate(userId, data,{
-            runValidators:true
-        });
-        res.status(200).send("User updated successfully!")
+//         if(data?.length>10){
+//             throw new Error("More than 10 skills not allowed!");
+//         }
+//         await User.findByIdAndUpdate(userId, data,{
+//             runValidators:true
+//         });
+//         res.status(200).send("User updated successfully!")
 
-    }catch(err){
-        res.status(500).send("Something went wrong! "+err);
-    }
-})
+//     }catch(err){
+//         res.status(500).send("Something went wrong! "+err);
+//     }
+// })
 

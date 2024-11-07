@@ -1,13 +1,53 @@
 const express = require("express");
 const requestRouter = express.Router();
 const {authUser}  = require("../middlewares/auth");
+const ConnectionRequest = require("../models/connectionRequest");
+const User = require("../models/user");
 
 
-requestRouter.post("/sendConnectionRequest",authUser,(req,res)=>{
+requestRouter.post("/request/send/:status/:toUserId",authUser,async (req,res)=>{
 
     try {
-        const identifiedProfileUser = req.user;
-        res.send(identifiedProfileUser.firstName +" has sent a connection request");
+        const fromUserId = req.user._id;
+        const toUserId = req.params.toUserId;
+        const status = req.params.status;
+
+        const allowedStatus = ["ignored","interested"];
+
+
+        if(!allowedStatus.includes(status)){
+            throw new Error ("invalid status value for this request");
+        }
+
+        const existingConnection = await ConnectionRequest.findOne({
+            $or:
+            [
+                {fromUserId, toUserId},
+                {fromUserId:toUserId, toUserId:fromUserId}
+            ]
+        });
+
+        if(existingConnection){
+            throw new Error("A connection already exists between the two users");
+        }
+
+        const toUser = await User.findOne({_id:toUserId});
+        if(!toUser){
+           return res.status(404).json({
+                message:"User not found!"
+            })
+        }
+
+        const newConnectionRequest = new ConnectionRequest({
+            fromUserId, toUserId, status
+        })
+
+        const data = await newConnectionRequest.save();
+        
+        res.status(202).json({
+            "message":`Connection request processed successfully! Status: ${status} for ${toUser.firstName}`,
+            data
+        });
     }catch(err){
         res.status(500).send("Something went wrong! "+err);
     }
