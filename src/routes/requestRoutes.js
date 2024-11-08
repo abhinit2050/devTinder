@@ -51,6 +51,51 @@ requestRouter.post("/request/send/:status/:toUserId",authUser,async (req,res)=>{
     }catch(err){
         res.status(500).send("Something went wrong! "+err);
     }
+});
+
+requestRouter.post("/request/review/:status/:requestId", authUser, async (req, res)=>{
+
+    try{
+        const loggedInUser = req.user;
+        
+        const{status, requestId} = req.params;
+
+        const allowedStatus = ["accepted", "rejected"];
+    
+        if(!allowedStatus.includes(status)){
+            return res.status(404).json({
+                message:"Status in the request is not allowed!"
+            });
+        }
+    
+        const requiredConnectionRequest = await ConnectionRequest.findOne({
+                
+                    _id:requestId,
+                    toUserId: loggedInUser._id,
+                    status:"interested"
+                
+        });
+
+        if(!requiredConnectionRequest){
+            return res.status(404).json({
+                message:"Request not found!"
+            });
+        }
+
+        requiredConnectionRequest.status = status;
+
+        const data = await requiredConnectionRequest.save();
+
+        res.json({
+            message:"Connection request "+status,
+            data
+        })
+
+    }catch(err){
+        res.status(500).send("Something went wrong! "+err);
+    }
+    
+
 })
 
 module.exports = requestRouter;
