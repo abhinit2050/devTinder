@@ -39,7 +39,9 @@ requestRouter.post("/request/send/:status/:toUserId",authUser,async (req,res)=>{
         }
 
         const newConnectionRequest = new ConnectionRequest({
-            fromUserId, toUserId, status
+            fromUserId:fromUserId, 
+            toUserId:toUserId, 
+            status: status
         })
 
         const data = await newConnectionRequest.save();
