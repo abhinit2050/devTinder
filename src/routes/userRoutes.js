@@ -78,7 +78,7 @@ userRouter.get("/feed",authUser,async (req, res)=>{
             ]
         }).select("fromUserId toUserId");
 
-        console.log(connectionRequests);
+       
 
     const hiddenUsersfromFeed = new Set();
 
@@ -95,7 +95,7 @@ userRouter.get("/feed",authUser,async (req, res)=>{
            
         }).select(USER_SAFE_DATA).skip(skip).limit(limit)
 
-        res.status(202).send(usersInFeed)
+        res.status(202).json({data:usersInFeed})
 
 
     }catch(err){
